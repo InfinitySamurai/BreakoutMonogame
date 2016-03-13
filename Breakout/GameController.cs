@@ -12,8 +12,13 @@ namespace Breakout {
 
         private Paddle playerPaddle;
         private Ball ball;
-        public List<Brick> AllBricks { get; set; }
+        private List<Brick> AllBricks { get; set; }
+        private List<Brick> bricksToRemove;
         private Breakout game;
+        private Rectangle screenBounds;
+        private List<Color> brickColors;
+        private int bricksStartY;
+        private int bricksFromEdges = 2;
 
         // All the sprites that will be used in the game
         private Dictionary<string, Texture2D> paddleTextures;
@@ -23,6 +28,13 @@ namespace Breakout {
         public GameController(Breakout game) {
             this.game = game;
             paddleTextures = new Dictionary<string, Texture2D>();
+            screenBounds = new Rectangle(0, 0, game.GraphicsDevice.Viewport.Width, game.GraphicsDevice.Viewport.Height);
+            brickColors = new List<Color>();
+            brickColors.Add(Color.Red);
+            brickColors.Add(Color.Blue);
+            brickColors.Add(Color.Green);
+            brickColors.Add(Color.Yellow);
+            bricksStartY = screenBounds.Height / 10;
         }
 
         
@@ -35,10 +47,12 @@ namespace Breakout {
         }
 
         public void Setup() {
-            playerPaddle = new Paddle(paddleTextures, GetStartingLocation(game.GraphicsDevice.Viewport.Width, game.GraphicsDevice.Viewport.Height));
+            playerPaddle = new Paddle(paddleTextures, GetStartingLocation());
             AllBricks = new List<Brick>();
-            AllBricks.Add(new Brick(blackBrickTexture, new Vector2(250, 200), Color.Red));
-            ball = new Ball(ballTexture, new Vector2(0, 500), new Vector2(2, -2));
+            SpawnBricks();
+            bricksToRemove = new List<Brick>();
+            ball = new Ball(ballTexture, new Vector2(2, 2), new Vector2(2, 2));
+
         }
 
         public void GameStart() {
@@ -54,14 +68,38 @@ namespace Breakout {
             }
         }
 
-        private Vector2 GetStartingLocation(int width, int height) {
-            float startx = (width / 2) - (paddleTextures["default"].Width / 2);
-            float starty = height - height / 10f;
+        private Vector2 GetStartingLocation() {
+            float startx = (screenBounds.Width / 2) - (paddleTextures["default"].Width / 2);
+            float starty = screenBounds.Height - screenBounds.Height / 10f;
             return new Vector2(startx, starty);
+        }
+
+        private void SpawnBricks() {
+            int bricksInRow = (int)(screenBounds.Width / blackBrickTexture.Width) - bricksFromEdges;
+            int bricksStartX = (screenBounds.Width - bricksInRow * blackBrickTexture.Width) / 2;
+            int j = 0;
+            foreach(Color color in brickColors) {
+                for(int i = 0; i < bricksInRow; i++) {
+                    Vector2 brickPosition = new Vector2(bricksStartX + i * blackBrickTexture.Width, bricksStartY + j * blackBrickTexture.Height);
+                    AllBricks.Add(new Brick(blackBrickTexture, brickPosition, color));
+                }
+                j++;
+            }
         }
 
         public void Update() {
             ball.Update();
+            ball.HandlePaddleCollision(playerPaddle.BoundingBox);
+            ball.HandleWallCollision(screenBounds);
+            foreach( Brick brick in AllBricks) {
+                if(ball.HandleBrickCollision(brick.BoundingBox)) {
+                    AllBricks.Remove(brick);
+                    break;
+                }
+            }
+            //foreach( Brick brick in bricksToRemove) {
+            //    AllBricks.Remove(brick);
+            // }
         }
 
         public void Draw(SpriteBatch spriteBatch) {
