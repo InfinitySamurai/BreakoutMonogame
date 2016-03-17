@@ -13,12 +13,12 @@ namespace Breakout {
         private Paddle playerPaddle;
         private Ball ball;
         private List<Brick> AllBricks { get; set; }
-        private List<Brick> bricksToRemove;
         private Breakout game;
         private Rectangle screenBounds;
         private List<Color> brickColors;
         private int bricksStartY;
         private int bricksFromEdges = 2;
+        private Vector2 ballStartDirection = new Vector2(0,1);
 
         // All the sprites that will be used in the game
         private Dictionary<string, Texture2D> paddleTextures;
@@ -46,13 +46,16 @@ namespace Breakout {
             ballTexture = game.Content.Load<Texture2D>("balls/defaultBall");
         }
 
-        public void Setup() {
-            playerPaddle = new Paddle(paddleTextures, GetStartingLocation());
+        public void Setup(KeyboardState keyboardState) {
+            playerPaddle = new Paddle(paddleTextures, GetPaddleStartingLocation());
             AllBricks = new List<Brick>();
             SpawnBricks();
-            bricksToRemove = new List<Brick>();
-            ball = new Ball(ballTexture, new Vector2(2, 2), new Vector2(2, 2));
-
+            ball = new Ball(ballTexture, GetBallStartingLocation(), ballStartDirection);
+            //while (true) {
+            //    if (keyboardState.GetPressedKeys() != null) {
+            //        break;
+            //    }
+            //}
         }
 
         public void GameStart() {
@@ -68,9 +71,15 @@ namespace Breakout {
             }
         }
 
-        private Vector2 GetStartingLocation() {
+        private Vector2 GetPaddleStartingLocation() {
             float startx = (screenBounds.Width / 2) - (paddleTextures["default"].Width / 2);
             float starty = screenBounds.Height - screenBounds.Height / 10f;
+            return new Vector2(startx, starty);
+        }
+
+        private Vector2 GetBallStartingLocation() {
+            float startx = (screenBounds.Width / 2) - (ballTexture.Width / 2);
+            float starty = screenBounds.Height * 0.6f;
             return new Vector2(startx, starty);
         }
 
@@ -97,9 +106,10 @@ namespace Breakout {
                     break;
                 }
             }
-            //foreach( Brick brick in bricksToRemove) {
-            //    AllBricks.Remove(brick);
-            // }
+
+            if(ball.Position.Y > playerPaddle.Position.Y) {
+                Setup(new KeyboardState());
+            }
         }
 
         public void Draw(SpriteBatch spriteBatch) {

@@ -17,7 +17,15 @@ namespace Breakout {
         {
             get
             {
-                    return new Rectangle((int)Position.X, (int)Position.Y, texture.Width, texture.Height);
+                return new Rectangle((int)Position.X, (int)Position.Y, texture.Width, texture.Height);
+            }
+        }
+
+        public Vector2 GetCentre
+        {
+            get
+            {
+                return new Vector2(Position.X+texture.Width/2, Position.Y+texture.Height/2);
             }
         }
 

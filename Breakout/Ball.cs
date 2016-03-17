@@ -11,12 +11,14 @@ namespace Breakout {
 
         private Vector2 velocity;
         private bool deflected = false;
-        private int speed = 1;
+        private int speed = 4;
+        private float defaultXSpeed;
 
         public Ball(Texture2D texture, Vector2 position, Vector2 velocity) {
             this.texture = texture;
             Position = position;
             this.velocity = velocity*speed;
+            defaultXSpeed = velocity.X * speed;
         }
 
         public bool HandleBrickCollision(Rectangle brickBox) {
@@ -32,8 +34,6 @@ namespace Breakout {
                     velocity.X *= -1;
                     deflected = true;
                 }
-
-                Console.WriteLine(intersection);
                 return true;
             }
             return false;
@@ -43,6 +43,11 @@ namespace Breakout {
         public void HandlePaddleCollision(Rectangle paddleBox) {
             if(this.BoundingBox.Intersects(paddleBox)) {
                 velocity.Y *= -1;
+                float paddleCentreX;
+                paddleCentreX = paddleBox.X + paddleBox.Width / 2;
+                float changeInXVelocity = ((GetCentre.X - paddleCentreX) / paddleBox.Width) *speed*2;
+
+                velocity.X = changeInXVelocity;
             }
         }
 

@@ -11,10 +11,11 @@ namespace Breakout {
     /// This is the main type for your game.
     /// </summary>
     public class Breakout : Game {
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        KeyboardState oldState;
+        KeyboardState KeyboardOldState;
 
         GameController gameController;
 
@@ -38,7 +39,7 @@ namespace Breakout {
             // TODO: Add your initialization logic here
             gameController = new GameController(this);
             base.Initialize();
-            oldState = Keyboard.GetState();
+            KeyboardOldState = Keyboard.GetState();
             
         }
 
@@ -75,7 +76,7 @@ namespace Breakout {
 
             base.Update(gameTime);
             if(!gameSetup) {
-                gameController.Setup();
+                gameController.Setup(KeyboardOldState);
                 gameSetup = true;
             }
             else if(!gameStarted) {
@@ -83,10 +84,10 @@ namespace Breakout {
                 gameStarted = true;
             }
             else {
-                KeyboardState newState = Keyboard.GetState();
-                gameController.TakeInput(oldState, newState);
+                KeyboardState KeyboardNewState = Keyboard.GetState();
+                gameController.TakeInput(KeyboardOldState, KeyboardNewState);
                 gameController.Update();
-                oldState = newState;
+                KeyboardOldState = KeyboardNewState;
             }
         }
 
