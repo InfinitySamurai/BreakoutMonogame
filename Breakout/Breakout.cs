@@ -19,6 +19,14 @@ namespace Breakout {
 
         GameController gameController;
 
+        public enum GameStates {
+            Menu,
+            Playing,
+            Paused
+        }
+
+        private GameStates gameState;
+
         bool gameSetup = false;
         bool gameStarted = false;
 
@@ -27,6 +35,7 @@ namespace Breakout {
             Content.RootDirectory = "Content";
             graphics.PreferredBackBufferHeight = 600;
             graphics.PreferredBackBufferWidth = 800;
+            gameState = GameStates.Menu;
         }
 
         /// <summary>

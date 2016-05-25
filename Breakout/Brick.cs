@@ -11,11 +11,13 @@ namespace Breakout {
     class Brick : GameObject{
 
         private Color brickColor;
+        public int Worth { get; set; }
 
-        public Brick(Texture2D texture, Vector2 position, Color color){
+        public Brick(Texture2D texture, Vector2 position, Color color, int points){
             Position = position;
             brickColor = color;
             this.texture = texture;
+            Worth = points;
         }
 
         public void Update() {

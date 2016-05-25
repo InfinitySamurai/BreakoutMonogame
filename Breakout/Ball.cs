@@ -41,7 +41,8 @@ namespace Breakout {
         }
 
         public void HandlePaddleCollision(Rectangle paddleBox) {
-            if(this.BoundingBox.Intersects(paddleBox)) {
+            Rectangle collision = Rectangle.Intersect(BoundingBox, paddleBox);
+            if(collision.Width > collision.Height) {
                 velocity.Y *= -1;
                 float paddleCentreX;
                 paddleCentreX = paddleBox.X + paddleBox.Width / 2;
@@ -60,9 +61,6 @@ namespace Breakout {
                 velocity.X *= -1;
             }
             if (Position.Y <= 0) {
-                velocity.Y *= -1;
-            }
-            if(Position.Y + texture.Height > wallBounds.Height) {
                 velocity.Y *= -1;
             }
         }

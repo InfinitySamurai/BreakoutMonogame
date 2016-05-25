@@ -19,9 +19,13 @@ namespace Breakout {
             texture = textures["default"];
         }
         
-        public void Move(int direction) {
-            Vector2 movement = new Vector2(direction * moveSpeed, 0);
-            Position += movement;
+        public void Move(int direction, Rectangle screenBounds) {
+            Vector2 newPosition = Position + new Vector2(direction * moveSpeed, 0);
+            if(newPosition.X > screenBounds.X) {
+                if(newPosition.X + texture.Width < screenBounds.Width) {
+                    Position = newPosition;
+                }
+            }
         }
 
         public void Update() {

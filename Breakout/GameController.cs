@@ -19,11 +19,15 @@ namespace Breakout {
         private int bricksStartY;
         private int bricksFromEdges = 2;
         private Vector2 ballStartDirection = new Vector2(0,1);
+        private int brickScore = 100;
+        private int totalScore = 0;
 
         // All the sprites that will be used in the game
         private Dictionary<string, Texture2D> paddleTextures;
         private Texture2D blackBrickTexture;
         private Texture2D ballTexture;
+        private SpriteFont font;
+
 
         public GameController(Breakout game) {
             this.game = game;
@@ -44,6 +48,7 @@ namespace Breakout {
             paddleTextures["longPaddle"] = game.Content.Load<Texture2D>("paddles/longPaddle");
             blackBrickTexture = game.Content.Load<Texture2D>("bricks/blackBrick");
             ballTexture = game.Content.Load<Texture2D>("balls/defaultBall");
+            font = game.Content.Load<SpriteFont>("Font");
         }
 
         public void Setup(KeyboardState keyboardState) {
@@ -51,6 +56,7 @@ namespace Breakout {
             AllBricks = new List<Brick>();
             SpawnBricks();
             ball = new Ball(ballTexture, GetBallStartingLocation(), ballStartDirection);
+            totalScore = 0;
             //while (true) {
             //    if (keyboardState.GetPressedKeys() != null) {
             //        break;
@@ -64,10 +70,10 @@ namespace Breakout {
 
         public void TakeInput(KeyboardState oldState, KeyboardState newState) {
             if (newState.IsKeyDown(Keys.Right)){
-                playerPaddle.Move(1);
+                playerPaddle.Move(1, screenBounds);
             }
             else if (newState.IsKeyDown(Keys.Left)){
-                playerPaddle.Move(-1);
+                playerPaddle.Move(-1, screenBounds);
             }
         }
 
@@ -90,7 +96,7 @@ namespace Breakout {
             foreach(Color color in brickColors) {
                 for(int i = 0; i < bricksInRow; i++) {
                     Vector2 brickPosition = new Vector2(bricksStartX + i * blackBrickTexture.Width, bricksStartY + j * blackBrickTexture.Height);
-                    AllBricks.Add(new Brick(blackBrickTexture, brickPosition, color));
+                    AllBricks.Add(new Brick(blackBrickTexture, brickPosition, color, brickScore));
                 }
                 j++;
             }
@@ -103,11 +109,12 @@ namespace Breakout {
             foreach( Brick brick in AllBricks) {
                 if(ball.HandleBrickCollision(brick.BoundingBox)) {
                     AllBricks.Remove(brick);
+                    totalScore += brick.Worth;
                     break;
                 }
             }
 
-            if(ball.Position.Y > playerPaddle.Position.Y) {
+            if(ball.Position.Y + ball.texture.Height> screenBounds.Height) {
                 Setup(new KeyboardState());
             }
         }
@@ -118,6 +125,9 @@ namespace Breakout {
                 brick.Draw(spriteBatch);
             }
             ball.Draw(spriteBatch);
+            spriteBatch.DrawString(font, "Score: " + totalScore, new Vector2(10,10), Color.Black);
         }
+
+
     }
 }
